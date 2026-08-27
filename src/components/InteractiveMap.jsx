@@ -1,6 +1,28 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { interpolateVesselPosition } from '../utils/geoUtils';
+
+// Free Open Source Tile Layers (100% Free, NO API Key Required)
+const TILE_SERVERS = {
+  osm: {
+    name: 'OpenStreetMap (Standard)',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    subdomains: 'abc'
+  },
+  esriOcean: {
+    name: 'Esri World Ocean',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, CEOS, UHO, and DeLorme',
+    subdomains: []
+  },
+  cartoPositron: {
+    name: 'Carto Positron Light',
+    url: 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    subdomains: 'abc'
+  }
+};
 
 export default function InteractiveMap({
   scenario,
@@ -15,35 +37,73 @@ export default function InteractiveMap({
 }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
+  const tileLayerRef = useRef(null);
   const layersGroupRef = useRef(null);
+
+  const [activeTileServer, setActiveTileServer] = useState('osm');
 
   // Initialize Map
   useEffect(() => {
     if (!mapRef.current) return;
 
     if (!mapInstanceRef.current) {
+      // Clamped bounds to prevent world repeating / looping on zoom out
+      const worldBounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
+
       const map = L.map(mapRef.current, {
         zoomControl: false,
-        attributionControl: false
+        attributionControl: false,
+        worldCopyJump: false,
+        minZoom: 3,
+        maxZoom: 18,
+        maxBounds: worldBounds,
+        maxBoundsViscosity: 1.0 // Strictly locks viewport inside single world boundary
       }).setView([2.66, 101.86], 11);
 
-      // Light Voyager Tiles
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19,
-        subdomains: 'abcd'
+      // Add Open-Source Tile Layer (noWrap prevents tile repetition)
+      const initialServer = TILE_SERVERS.osm;
+      const tileLayer = L.tileLayer(initialServer.url, {
+        maxZoom: 18,
+        minZoom: 3,
+        noWrap: true, // PREVENTS MAP HORIZONTAL LOOPING
+        bounds: worldBounds,
+        subdomains: initialServer.subdomains,
+        attribution: initialServer.attribution
       }).addTo(map);
 
       // Zoom Control on Top Right
       L.control.zoom({ position: 'topright' }).addTo(map);
 
       mapInstanceRef.current = map;
+      tileLayerRef.current = tileLayer;
       layersGroupRef.current = L.layerGroup().addTo(map);
     }
-
-    return () => {
-      // Cleanup on unmount
-    };
   }, []);
+
+  // Handle Tile Server Switch
+  const handleSwitchTileServer = (serverKey) => {
+    setActiveTileServer(serverKey);
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    if (tileLayerRef.current) {
+      map.removeLayer(tileLayerRef.current);
+    }
+
+    const server = TILE_SERVERS[serverKey] || TILE_SERVERS.osm;
+    const worldBounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
+
+    const newLayer = L.tileLayer(server.url, {
+      maxZoom: 18,
+      minZoom: 3,
+      noWrap: true, // PREVENTS MAP REPEATING LOOP
+      bounds: worldBounds,
+      subdomains: server.subdomains,
+      attribution: server.attribution
+    }).addTo(map);
+
+    tileLayerRef.current = newLayer;
+  };
 
   // Update Layers whenever scenario, time, or toggles change
   useEffect(() => {
@@ -251,13 +311,13 @@ export default function InteractiveMap({
 
       {/* Layer Toggles & Map Legend Overlay */}
       <div className="absolute top-4 left-4 z-20 flex flex-col space-y-2">
-        <div className="glass-panel p-3 rounded-xl border border-slate-200 text-xs w-56 shadow-lg bg-white/95 text-slate-800">
+        <div className="glass-panel p-3 rounded-xl border border-slate-200 text-xs w-60 shadow-lg bg-white/95 text-slate-800">
           <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center justify-between font-mono">
             <span>GIS Map Layers</span>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
           </div>
 
-          <div className="space-y-1.5 font-medium">
+          <div className="space-y-1.5 font-medium mb-3">
             <label className="flex items-center space-x-2 text-slate-700 cursor-pointer hover:text-sky-700">
               <input
                 type="checkbox"
@@ -301,6 +361,24 @@ export default function InteractiveMap({
               <span className="w-2.5 h-2.5 rounded bg-amber-500 inline-block"></span>
               <span>AIS Vessel Traffic</span>
             </label>
+          </div>
+
+          {/* Open-Source Basemap Switcher */}
+          <div className="border-t border-slate-200 pt-2 font-mono">
+            <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">
+              Open-Source Basemap (Free)
+            </label>
+            <select
+              value={activeTileServer}
+              onChange={(e) => handleSwitchTileServer(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-300 text-slate-800 text-[11px] rounded p-1 font-sans cursor-pointer"
+            >
+              {Object.entries(TILE_SERVERS).map(([key, s]) => (
+                <option key={key} value={key}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

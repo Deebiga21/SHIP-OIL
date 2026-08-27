@@ -1,5 +1,5 @@
 import React from 'react';
-import { Waves, Radar, Play, FileText, Sliders, ShieldAlert, Sparkles } from 'lucide-react';
+import { Waves, Radar, Play, FileText, Sliders, ShieldAlert, Radio } from 'lucide-react';
 
 export default function Navbar({
   scenarios,
@@ -8,12 +8,13 @@ export default function Navbar({
   isSimulationMode,
   onToggleSimulationMode,
   onOpenReport,
-  onOpenSimulationPanel
+  onOpenSimulationPanel,
+  onOpenLiveAis
 }) {
   const activeScenario = scenarios.find((s) => s.id === selectedScenarioId) || scenarios[0];
 
   return (
-    <header className="h-16 bg-white/90 border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-30 relative backdrop-blur-md shadow-sm">
+    <header className="h-16 bg-white/90 border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-30 relative backdrop-blur-md shadow-sm font-sans">
       {/* Brand & Logo */}
       <div className="flex items-center space-x-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-teal-500 to-emerald-500 p-0.5 shadow-md">
@@ -59,6 +60,16 @@ export default function Navbar({
             <span>Custom Physics Lab</span>
           </button>
         </div>
+
+        {/* Live AIS API Input Button */}
+        <button
+          onClick={onOpenLiveAis}
+          className="px-3 py-2 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-semibold rounded-lg border border-sky-300 transition-colors flex items-center space-x-1.5 shadow-sm"
+          title="Parse & Map Ships from Live AIS API Response"
+        >
+          <Radio className="w-3.5 h-3.5 text-sky-600 animate-pulse" />
+          <span>Live AIS Stream / API</span>
+        </button>
 
         {/* Preset Selector */}
         {!isSimulationMode && (
