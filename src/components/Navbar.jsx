@@ -1,5 +1,5 @@
 import React from 'react';
-import { Waves, Radar, Play, FileText, Sliders, ShieldAlert, Radio } from 'lucide-react';
+import { Waves, Radar, Play, FileText, Sliders, ShieldAlert, Radio, Route } from 'lucide-react';
 
 export default function Navbar({
   scenarios,
@@ -9,7 +9,8 @@ export default function Navbar({
   onToggleSimulationMode,
   onOpenReport,
   onOpenSimulationPanel,
-  onOpenLiveAis
+  onOpenLiveAis,
+  onOpenTrajectoryRecorder
 }) {
   const activeScenario = scenarios.find((s) => s.id === selectedScenarioId) || scenarios[0];
 
@@ -69,6 +70,16 @@ export default function Navbar({
         >
           <Radio className="w-3.5 h-3.5 text-sky-600 animate-pulse" />
           <span>Live AIS Stream / API</span>
+        </button>
+
+        {/* Live Trajectories Recorder Button */}
+        <button
+          onClick={onOpenTrajectoryRecorder}
+          className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-300 transition-colors flex items-center space-x-1.5 shadow-sm"
+          title="View & Export Chronological Trajectory Sequence Log"
+        >
+          <Route className="w-3.5 h-3.5 text-emerald-600" />
+          <span className="hidden sm:inline">Trajectory Sequence Log</span>
         </button>
 
         {/* Preset Selector */}

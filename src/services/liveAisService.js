@@ -1,12 +1,13 @@
 /**
- * Real-Time AISStream WebSocket Client & Multivessel Parser Service
- * Capped at MAX 200 tracked ships for optimal prototype performance.
+ * Real-Time AISStream WebSocket Client & Trajectory Reconstruction Service
+ * Extracts, sorts, and connects time-stamped vessel positions into trajectory lines
  */
 
 export const MAX_TRACKED_VESSELS = 200;
 
 /**
  * Parses raw JSON string or object into standard vessel data objects (Capped at 200 vessels).
+ * Automatically sorts trackHistory chronologically: MMSI -> [{ timestamp, lat, lng, speed, course }]
  */
 export const parseAisApiResponse = (rawInput) => {
   if (!rawInput) return [];
@@ -47,7 +48,7 @@ export const parseAisApiResponse = (rawInput) => {
     const item = parsedItems[idx];
     if (!item) continue;
 
-    // Ignore SubscriptionConfirmation or system messages without MetaData
+    // Ignore system frames
     if (item.MessageType === 'SubscriptionConfirmation' || (!item.MetaData && !item.metadata && !item.Latitude)) {
       continue;
     }
@@ -85,12 +86,13 @@ export const parseAisApiResponse = (rawInput) => {
       lng: parseFloat(lng.toFixed(5)),
       speed: parseFloat(sog.toFixed(1)),
       course: parseFloat((cog > 0 ? cog : trueHeading).toFixed(1)),
-      timestamp: timestampMs
+      heading: parseFloat(trueHeading.toFixed(1)),
+      timestamp: timestampMs,
+      timeFormatted: new Date(timestampMs).toISOString().substring(11, 19)
     };
 
     if (!vesselMap.has(mmsi)) {
       if (vesselMap.size >= MAX_TRACKED_VESSELS) {
-        // Capped at MAX 200 unique ships
         break;
       }
       vesselMap.set(mmsi, {
@@ -112,6 +114,8 @@ export const parseAisApiResponse = (rawInput) => {
     } else {
       const existing = vesselMap.get(mmsi);
       existing.trackHistory.push(trackPoint);
+      // Keep track points chronologically sorted by timestamp
+      existing.trackHistory.sort((a, b) => a.timestamp - b.timestamp);
       if (existing.name.startsWith('VESSEL') && !shipName.startsWith('VESSEL')) {
         existing.name = shipName;
       }
@@ -122,7 +126,21 @@ export const parseAisApiResponse = (rawInput) => {
 };
 
 /**
- * Real-Time AISStream WebSocket Connection Manager (Limited to 200 active ships)
+ * Exports vessel trajectories to CSV format (as suggested by user/friend)
+ */
+export const exportTrajectoriesToCSV = (vessels) => {
+  let csv = 'MMSI,ShipName,Timestamp_UTC,Latitude,Longitude,Speed_Knots,Course_Deg,Heading_Deg\n';
+  vessels.forEach((v) => {
+    v.trackHistory.forEach((pt) => {
+      const timeStr = new Date(pt.timestamp).toISOString();
+      csv += `${v.mmsi},"${v.name}",${timeStr},${pt.lat},${pt.lng},${pt.speed},${pt.course},${pt.heading || pt.course}\n`;
+    });
+  });
+  return csv;
+};
+
+/**
+ * Real-Time AISStream WebSocket Connection Manager
  */
 export class RealtimeAisStream {
   constructor(apiKey, onVesselUpdate, onError) {
@@ -177,14 +195,14 @@ export class RealtimeAisStream {
               if (this.vesselsMap.has(v.mmsi)) {
                 const existing = this.vesselsMap.get(v.mmsi);
                 existing.trackHistory.push(v.trackHistory[0]);
-                if (existing.trackHistory.length > 25) existing.trackHistory.shift();
+                // Sort chronologically and limit history length to 40 points per vessel
+                existing.trackHistory.sort((a, b) => a.timestamp - b.timestamp);
+                if (existing.trackHistory.length > 40) existing.trackHistory.shift();
               } else if (this.vesselsMap.size < MAX_TRACKED_VESSELS) {
-                // Enforce 200 vessel ceiling limit
                 this.vesselsMap.set(v.mmsi, v);
               }
             });
 
-            // Notify React listener with live array of streaming ships (max 200)
             if (this.onVesselUpdate) {
               this.onVesselUpdate(Array.from(this.vesselsMap.values()), this.receivedCount);
             }

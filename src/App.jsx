@@ -9,6 +9,7 @@ import VesselDetailsModal from './components/VesselDetailsModal';
 import SimulationPanel from './components/SimulationPanel';
 import ReportModal from './components/ReportModal';
 import LiveAisModal from './components/LiveAisModal';
+import TrajectoryRecorderModal from './components/TrajectoryRecorderModal';
 
 import { PRESET_SCENARIOS } from './data/presetScenarios';
 import { characterizeOilSlick } from './engine/sarSegmentation';
@@ -22,10 +23,11 @@ export default function App() {
   const [isSimulationMode, setIsSimulationMode] = useState(false);
   const [customAisVessels, setCustomAisVessels] = useState([]);
 
-  // Real-Time AISStream WebSocket State (Capped at 200 prototype vessels)
+  // Real-Time AISStream WebSocket State
   const [isAisStreaming, setIsAisStreaming] = useState(false);
   const [liveStreamingVessels, setLiveStreamingVessels] = useState([]);
   const [liveMsgCount, setLiveMsgCount] = useState(0);
+  const [isPostSpillRecording, setIsPostSpillRecording] = useState(true);
   const aisStreamRef = useRef(null);
 
   // Active Scenario object merged with imported & real-time streaming AIS vessels
@@ -37,7 +39,7 @@ export default function App() {
     const uniqueMap = new Map();
     combinedVessels.forEach((v) => uniqueMap.set(v.mmsi, v));
 
-    // Limit active vessels array to 200
+    // Limit active vessels array to 200 prototype vessels
     const limitedArray = Array.from(uniqueMap.values()).slice(0, MAX_TRACKED_VESSELS);
 
     return {
@@ -107,6 +109,7 @@ export default function App() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isSimulationPanelOpen, setIsSimulationPanelOpen] = useState(false);
   const [isLiveAisModalOpen, setIsLiveAisModalOpen] = useState(false);
+  const [isTrajectoryModalOpen, setIsTrajectoryModalOpen] = useState(false);
 
   // GIS Layer Toggles
   const [slickMaskToggle, setSlickMaskToggle] = useState(true);
@@ -191,6 +194,7 @@ export default function App() {
         onOpenReport={() => setIsReportModalOpen(true)}
         onOpenSimulationPanel={() => setIsSimulationPanelOpen(!isSimulationPanelOpen)}
         onOpenLiveAis={() => setIsLiveAisModalOpen(true)}
+        onOpenTrajectoryRecorder={() => setIsTrajectoryModalOpen(true)}
       />
 
       {/* Main Workspace Area */}
@@ -267,6 +271,18 @@ export default function App() {
         isStreaming={isAisStreaming}
         onToggleStreaming={handleToggleAisStream}
         liveVesselCount={liveStreamingVessels.length}
+      />
+
+      {/* Trajectory Sequence Log & Recorder Modal */}
+      <TrajectoryRecorderModal
+        isOpen={isTrajectoryModalOpen}
+        onClose={() => setIsTrajectoryModalOpen(false)}
+        vessels={activeScenario.vessels}
+        isRecording={isPostSpillRecording}
+        onToggleRecording={() => setIsPostSpillRecording(!isPostSpillRecording)}
+        onSelectVesselForSimulation={(vesselId) => {
+          setSelectedVesselId(vesselId);
+        }}
       />
 
       {/* Slide-out Simulation Physics Panel */}

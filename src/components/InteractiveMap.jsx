@@ -39,6 +39,7 @@ export default function InteractiveMap({
   const mapInstanceRef = useRef(null);
   const tileLayerRef = useRef(null);
   const layersGroupRef = useRef(null);
+  const prevScenarioIdRef = useRef(null);
 
   const [activeTileServer, setActiveTileServer] = useState('osm');
 
@@ -58,14 +59,14 @@ export default function InteractiveMap({
         maxZoom: 18,
         maxBounds: worldBounds,
         maxBoundsViscosity: 1.0 // Strictly locks viewport inside single world boundary
-      }).setView([2.66, 101.86], 11);
+      }).setView([2.45, 101.40], 11);
 
       // Add Open-Source Tile Layer (noWrap prevents tile repetition)
       const initialServer = TILE_SERVERS.osm;
       const tileLayer = L.tileLayer(initialServer.url, {
         maxZoom: 18,
         minZoom: 3,
-        noWrap: true, // PREVENTS MAP HORIZONTAL LOOPING
+        noWrap: true,
         bounds: worldBounds,
         subdomains: initialServer.subdomains,
         attribution: initialServer.attribution
@@ -96,7 +97,7 @@ export default function InteractiveMap({
     const newLayer = L.tileLayer(server.url, {
       maxZoom: 18,
       minZoom: 3,
-      noWrap: true, // PREVENTS MAP REPEATING LOOP
+      noWrap: true,
       bounds: worldBounds,
       subdomains: server.subdomains,
       attribution: server.attribution
@@ -105,7 +106,33 @@ export default function InteractiveMap({
     tileLayerRef.current = newLayer;
   };
 
-  // Update Layers whenever scenario, time, or toggles change
+  // Pan Map ONLY when Scenario changes OR when a Vessel is selected
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    // 1. If scenario changed, pan to slick centroid ONCE
+    if (scenario && scenario.id !== prevScenarioIdRef.current) {
+      prevScenarioIdRef.current = scenario.id;
+      if (slickData && slickData.centroid) {
+        map.panTo(slickData.centroid, { animate: true });
+      }
+    }
+
+    // 2. If user selected a vessel, pan smoothly to THAT VESSEL's current position!
+    if (selectedVesselId && scenario.vessels) {
+      const selectedVessel = scenario.vessels.find((v) => v.id === selectedVesselId);
+      if (selectedVessel && selectedVessel.trackHistory.length > 0) {
+        const currentSimulatedTime = slickData.acquisitionTime + currentTimeOffsetHours * 3600 * 1000;
+        const currentPos = interpolateVesselPosition(selectedVessel.trackHistory, currentSimulatedTime);
+        if (currentPos) {
+          map.panTo([currentPos.lat, currentPos.lng], { animate: true });
+        }
+      }
+    }
+  }, [scenario, selectedVesselId]);
+
+  // Update Layers whenever scenario, time, or toggles change (WITHOUT resetting map view)
   useEffect(() => {
     const map = mapInstanceRef.current;
     const layersGroup = layersGroupRef.current;
@@ -116,12 +143,7 @@ export default function InteractiveMap({
     // Calculate current time epoch for timeline playback
     const currentSimulatedTime = slickData.acquisitionTime + currentTimeOffsetHours * 3600 * 1000;
 
-    // 1. Fit Map Bounds to Scenario
-    if (slickData && slickData.centroid) {
-      map.panTo(slickData.centroid, { animate: true });
-    }
-
-    // 2. Render Oil Slick Polygon
+    // 1. Render Oil Slick Polygon
     if (layerToggles.slickMask && scenario.slickPolygon) {
       const slickPoly = L.polygon(scenario.slickPolygon, {
         color: '#0284C7',
@@ -142,9 +164,8 @@ export default function InteractiveMap({
       `);
     }
 
-    // 3. Render Hindcast Origin & Reverse Drift Trail
+    // 2. Render Hindcast Origin & Reverse Drift Trail
     if (layerToggles.hindcast && hindcastData) {
-      // Reverse Trail Polyline
       const trailPoints = hindcastData.particleTrail.map((pt) => [pt.lat, pt.lng]);
       L.polyline(trailPoints, {
         color: '#DC2626',
@@ -153,7 +174,6 @@ export default function InteractiveMap({
         opacity: 0.9
       }).addTo(layersGroup);
 
-      // Stochastic Particle Heat Cloud
       hindcastData.originHotspotParticles.forEach((p) => {
         L.circleMarker([p.lat, p.lng], {
           radius: 3.5,
@@ -164,7 +184,6 @@ export default function InteractiveMap({
         }).addTo(layersGroup);
       });
 
-      // Origin Centroid Marker (Pulsing Red)
       const originIcon = L.divIcon({
         className: 'custom-origin-icon',
         html: `
@@ -190,7 +209,7 @@ export default function InteractiveMap({
       `);
     }
 
-    // 4. Render Forward Forecast Tube
+    // 3. Render Forward Forecast Tube
     if (layerToggles.forecast && forecastData) {
       const forecastPoints = forecastData.forecastPath.map((pt) => [pt.lat, pt.lng]);
       L.polyline(forecastPoints, {
@@ -200,7 +219,6 @@ export default function InteractiveMap({
         opacity: 0.9
       }).addTo(layersGroup);
 
-      // End forecast point marker
       const endPt = forecastPoints[forecastPoints.length - 1];
       if (endPt) {
         L.circleMarker(endPt, {
@@ -213,7 +231,7 @@ export default function InteractiveMap({
       }
     }
 
-    // 5. Render Vessels Tracks & Timeline Positions
+    // 4. Render Vessels Tracks & Timeline Positions
     if (layerToggles.vessels && scenario.vessels) {
       scenario.vessels.forEach((vessel) => {
         const attributionInfo = rankedVessels.find((rv) => rv.vesselId === vessel.id) || {};
@@ -223,7 +241,7 @@ export default function InteractiveMap({
 
         const trackPoints = vessel.trackHistory.map((pt) => [pt.lat, pt.lng]);
 
-        // Draw track line
+        // Draw connected track line
         const trackLineColor = isTopSuspect ? '#DC2626' : isMediumSuspect ? '#D97706' : '#0284C7';
         L.polyline(trackPoints, {
           color: trackLineColor,
@@ -262,8 +280,8 @@ export default function InteractiveMap({
             html: `
               <div class="relative flex items-center justify-center cursor-pointer transform hover:scale-125 transition-transform">
                 <div class="w-8 h-8 rounded-full flex items-center justify-center ${
-                  isSelected ? 'ring-4 ring-sky-500 bg-white' : 'bg-white border border-slate-300'
-                } shadow-md" style="transform: rotate(${currentPos.course}deg)">
+                  isSelected ? 'ring-4 ring-sky-500 bg-white shadow-xl' : 'bg-white border border-slate-300 shadow-md'
+                }" style="transform: rotate(${currentPos.course}deg)">
                   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="${markerColor}" stroke="currentColor" stroke-width="1.5">
                     <polygon points="12 2 19 21 12 17 5 21 12 2"/>
                   </svg>

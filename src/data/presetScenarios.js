@@ -1,16 +1,16 @@
 /**
  * Preset Real-world Satellite Scenarios for AquaSentinel AI Demonstration
+ * All coordinates positioned in DEEP OPEN OCEAN SEA WATER channels
  */
 
-// Base reference timestamp (Current simulated observation time)
 const NOW = Date.now();
 
 export const PRESET_SCENARIOS = [
   {
     id: 'malacca_strait',
     title: 'Strait of Malacca - Illegal Tanker Discharge',
-    subtitle: 'Dark ship event detected along major international crude transit lane',
-    region: 'Strait of Malacca (Offshore Port Dickson)',
+    subtitle: 'Dark ship event detected along major international deepwater crude transit lane',
+    region: 'Strait of Malacca (30km Offshore Port Dickson - Deep Channel)',
     satelliteMetadata: {
       satellite: 'Sentinel-1B SAR C-Band',
       acquisitionTime: NOW - 12 * 3600 * 1000, // 12 hours ago
@@ -22,13 +22,14 @@ export const PRESET_SCENARIOS = [
       currentSpeedKnots: 1.4,
       currentDirDeg: 320 // NW ocean current
     },
+    // Slick Polygon positioned in Deep Sea Water (Lat 2.45°N, Lng 101.40°E - 30km offshore in Malacca Strait)
     slickPolygon: [
-      [2.6580, 101.8420],
-      [2.6650, 101.8590],
-      [2.6710, 101.8850],
-      [2.6680, 101.8980],
-      [2.6590, 101.8760],
-      [2.6520, 101.8490]
+      [2.4580, 101.3820],
+      [2.4650, 101.3990],
+      [2.4710, 101.4250],
+      [2.4680, 101.4380],
+      [2.4590, 101.4160],
+      [2.4520, 101.3890]
     ],
     opticCode: 4, // Discontinuous True Color (Heavy Crude Sheen)
     vessels: [
@@ -46,17 +47,18 @@ export const PRESET_SCENARIOS = [
         destination: 'Singapore (ETA 18:00)',
         owner: 'Titan Ocean Maritime Inc.',
         image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=600&q=80',
+        // Deep Sea Track Points along Malacca Shipping Lane
         trackHistory: [
-          { lat: 2.5100, lng: 101.6200, speed: 14.5, course: 125, timestamp: NOW - 18 * 3600 * 1000 },
-          { lat: 2.5700, lng: 101.7100, speed: 14.1, course: 124, timestamp: NOW - 16 * 3600 * 1000 },
-          { lat: 2.6180, lng: 101.7820, speed: 13.8, course: 122, timestamp: NOW - 14.5 * 3600 * 1000 },
-          // SPEED DROP & AIS BLACKOUT START NEAR ORIGIN
-          { lat: 2.6390, lng: 101.8150, speed: 3.2, course: 120, timestamp: NOW - 13.5 * 3600 * 1000 },
+          { lat: 2.3100, lng: 101.1800, speed: 14.5, course: 125, timestamp: NOW - 18 * 3600 * 1000 },
+          { lat: 2.3700, lng: 101.2700, speed: 14.1, course: 124, timestamp: NOW - 16 * 3600 * 1000 },
+          { lat: 2.4180, lng: 101.3420, speed: 13.8, course: 122, timestamp: NOW - 14.5 * 3600 * 1000 },
+          // SPEED DROP & AIS BLACKOUT START NEAR SEA ORIGIN
+          { lat: 2.4390, lng: 101.3750, speed: 3.2, course: 120, timestamp: NOW - 13.5 * 3600 * 1000 },
           // AIS BLACKOUT GAP (No signals for 2 hours)
-          { lat: 2.6710, lng: 101.8700, speed: 4.1, course: 118, timestamp: NOW - 11.5 * 3600 * 1000 },
-          { lat: 2.7300, lng: 101.9600, speed: 13.9, course: 121, timestamp: NOW - 9 * 3600 * 1000 },
-          { lat: 2.8100, lng: 102.0800, speed: 14.2, course: 123, timestamp: NOW - 5 * 3600 * 1000 },
-          { lat: 2.8900, lng: 102.2100, speed: 14.4, course: 125, timestamp: NOW }
+          { lat: 2.4710, lng: 101.4300, speed: 4.1, course: 118, timestamp: NOW - 11.5 * 3600 * 1000 },
+          { lat: 2.5300, lng: 101.5200, speed: 13.9, course: 121, timestamp: NOW - 9 * 3600 * 1000 },
+          { lat: 2.6100, lng: 101.6400, speed: 14.2, course: 123, timestamp: NOW - 5 * 3600 * 1000 },
+          { lat: 2.6900, lng: 101.7700, speed: 14.4, course: 125, timestamp: NOW }
         ]
       },
       {
@@ -74,12 +76,12 @@ export const PRESET_SCENARIOS = [
         owner: 'Mediterranean Shipping Co.',
         image: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?auto=format&fit=crop&w=600&q=80',
         trackHistory: [
-          { lat: 2.5400, lng: 101.6000, speed: 18.2, course: 128, timestamp: NOW - 18 * 3600 * 1000 },
-          { lat: 2.6300, lng: 101.7400, speed: 18.5, course: 127, timestamp: NOW - 15 * 3600 * 1000 },
-          { lat: 2.7200, lng: 101.8800, speed: 18.4, course: 128, timestamp: NOW - 12 * 3600 * 1000 },
-          { lat: 2.8100, lng: 102.0200, speed: 18.1, course: 126, timestamp: NOW - 9 * 3600 * 1000 },
-          { lat: 2.9000, lng: 102.1600, speed: 18.3, course: 127, timestamp: NOW - 6 * 3600 * 1000 },
-          { lat: 2.9900, lng: 102.3000, speed: 18.0, course: 128, timestamp: NOW }
+          { lat: 2.3400, lng: 101.1600, speed: 18.2, course: 128, timestamp: NOW - 18 * 3600 * 1000 },
+          { lat: 2.4300, lng: 101.3000, speed: 18.5, course: 127, timestamp: NOW - 15 * 3600 * 1000 },
+          { lat: 2.5200, lng: 101.4400, speed: 18.4, course: 128, timestamp: NOW - 12 * 3600 * 1000 },
+          { lat: 2.6100, lng: 101.5800, speed: 18.1, course: 126, timestamp: NOW - 9 * 3600 * 1000 },
+          { lat: 2.7000, lng: 101.7200, speed: 18.3, course: 127, timestamp: NOW - 6 * 3600 * 1000 },
+          { lat: 2.7900, lng: 101.8600, speed: 18.0, course: 128, timestamp: NOW }
         ]
       },
       {
@@ -97,11 +99,11 @@ export const PRESET_SCENARIOS = [
         owner: 'Pacific Bulk Shipping',
         image: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=600&q=80',
         trackHistory: [
-          { lat: 2.4800, lng: 101.6500, speed: 11.5, course: 122, timestamp: NOW - 18 * 3600 * 1000 },
-          { lat: 2.5600, lng: 101.7700, speed: 11.8, course: 120, timestamp: NOW - 15 * 3600 * 1000 },
-          { lat: 2.6400, lng: 101.8900, speed: 11.6, course: 121, timestamp: NOW - 12 * 3600 * 1000 },
-          { lat: 2.7200, lng: 102.0100, speed: 11.4, course: 123, timestamp: NOW - 9 * 3600 * 1000 },
-          { lat: 2.8000, lng: 102.1300, speed: 11.7, course: 122, timestamp: NOW }
+          { lat: 2.2800, lng: 101.2100, speed: 11.5, course: 122, timestamp: NOW - 18 * 3600 * 1000 },
+          { lat: 2.3600, lng: 101.3300, speed: 11.8, course: 120, timestamp: NOW - 15 * 3600 * 1000 },
+          { lat: 2.4400, lng: 101.4500, speed: 11.6, course: 121, timestamp: NOW - 12 * 3600 * 1000 },
+          { lat: 2.5200, lng: 101.5700, speed: 11.4, course: 123, timestamp: NOW - 9 * 3600 * 1000 },
+          { lat: 2.6000, lng: 101.6900, speed: 11.7, course: 122, timestamp: NOW }
         ]
       }
     ]
@@ -110,7 +112,7 @@ export const PRESET_SCENARIOS = [
     id: 'north_sea',
     title: 'North Sea - Complex Offshore Flow',
     subtitle: 'Chemical sheen near energy platform corridor under strong tidal current',
-    region: 'North Sea (Sector 56°N, 3°E)',
+    region: 'North Sea (Sector 56°N, 3°E - Deep Offshore)',
     satelliteMetadata: {
       satellite: 'Sentinel-1A SAR C-Band',
       acquisitionTime: NOW - 8 * 3600 * 1000,
@@ -180,8 +182,8 @@ export const PRESET_SCENARIOS = [
   {
     id: 'persian_gulf',
     title: 'Persian Gulf - Heavy Crude Discharge',
-    subtitle: 'Large continuous true color crude slick drifting towards sensitive coastal mangroves',
-    region: 'Strait of Hormuz (Offshore Qeshm)',
+    subtitle: 'Large continuous true color crude slick drifting in deep ocean channel',
+    region: 'Strait of Hormuz (Deep Sea Channel)',
     satelliteMetadata: {
       satellite: 'Sentinel-2B Optical + Sentinel-1 SAR',
       acquisitionTime: NOW - 6 * 3600 * 1000,
@@ -194,12 +196,12 @@ export const PRESET_SCENARIOS = [
       currentDirDeg: 300 // NW current
     },
     slickPolygon: [
-      [26.3500, 55.4500],
-      [26.3680, 55.4720],
-      [26.3850, 55.5010],
-      [26.3790, 55.5180],
-      [26.3610, 55.4920],
-      [26.3450, 55.4650]
+      [26.2500, 55.1500],
+      [26.2680, 55.1720],
+      [26.2850, 55.2010],
+      [26.2790, 55.2180],
+      [26.2610, 55.1920],
+      [26.2450, 55.1650]
     ],
     opticCode: 5, // Continuous True Color Heavy Crude
     vessels: [
@@ -218,12 +220,12 @@ export const PRESET_SCENARIOS = [
         owner: 'Gulf Carrier Corp.',
         image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=600&q=80',
         trackHistory: [
-          { lat: 26.2200, lng: 55.2800, speed: 14.8, course: 55, timestamp: NOW - 12 * 3600 * 1000 },
-          { lat: 26.2900, lng: 55.3700, speed: 14.4, course: 54, timestamp: NOW - 10 * 3600 * 1000 },
+          { lat: 26.1200, lng: 54.9800, speed: 14.8, course: 55, timestamp: NOW - 12 * 3600 * 1000 },
+          { lat: 26.1900, lng: 55.0700, speed: 14.4, course: 54, timestamp: NOW - 10 * 3600 * 1000 },
           // 110-MINUTE AIS BLACKOUT GAP
-          { lat: 26.3420, lng: 55.4410, speed: 2.9, course: 52, timestamp: NOW - 8.2 * 3600 * 1000 },
-          { lat: 26.4100, lng: 55.5300, speed: 14.1, course: 56, timestamp: NOW - 5 * 3600 * 1000 },
-          { lat: 26.4800, lng: 55.6200, speed: 14.6, course: 55, timestamp: NOW }
+          { lat: 26.2420, lng: 55.1410, speed: 2.9, course: 52, timestamp: NOW - 8.2 * 3600 * 1000 },
+          { lat: 26.3100, lng: 55.2300, speed: 14.1, course: 56, timestamp: NOW - 5 * 3600 * 1000 },
+          { lat: 26.3800, lng: 55.3200, speed: 14.6, course: 55, timestamp: NOW }
         ]
       }
     ]
