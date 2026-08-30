@@ -38,10 +38,10 @@ export default function LandingPage() {
             <span className="font-bold text-xl tracking-wider">OILTRACE<span className="text-[#FACC15]">AI</span></span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-            <Link href="#" className="text-white">Home</Link>
-            <Link href="#" className="hover:text-white transition">Technology</Link>
-            <Link href="#" className="hover:text-white transition">Platform</Link>
-            <Link href="#" className="hover:text-white transition">About Us</Link>
+            <Link href="/command-center" className="text-white">Home</Link>
+            <Link href="/command-center" className="hover:text-white transition">Technology</Link>
+            <Link href="/command-center" className="hover:text-white transition">Platform</Link>
+            <Link href="/command-center" className="hover:text-white transition">About Us</Link>
           </div>
         </nav>
 
@@ -59,7 +59,7 @@ export default function LandingPage() {
               OILTRACE AI is a state-of-the-art intelligent marine oil spill detection and vessel attribution platform.
             </p>
             <div className="flex items-center gap-6">
-              <Link href="#">
+              <Link href="/command-center">
                 <button className="px-8 py-4 rounded-full bg-[#FACC15] text-black font-semibold hover:scale-105 transition flex items-center gap-2">
                   Get Started
                 </button>
@@ -69,8 +69,7 @@ export default function LandingPage() {
               </button>
             </div>
           </div>
-          
-          <div className="flex-1 relative">
+          <div className="flex-1 relative flex justify-center md:justify-end">
             <div className="w-[400px] h-[500px] rounded-[40px] bg-gradient-to-br from-[#1c1c1c] to-[#0a0a0a] border border-[#2a2a2a] relative overflow-hidden flex items-center justify-center">
                <div className="absolute top-10 right-10 w-24 h-24 bg-[#FACC15]/30 rounded-full blur-2xl" />
                <div className="absolute bottom-10 left-10 w-32 h-32 bg-[#F59E0B]/20 rounded-full blur-3xl" />
@@ -121,13 +120,13 @@ export default function LandingPage() {
         <section className="flex flex-col md:flex-row gap-12 mt-10">
           <div className="flex-1 grid grid-cols-2 gap-4">
             <div className="h-48 rounded-3xl bg-[#1a1a1a] border border-[#222] overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1582967177930-fc8eb1851156?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover opacity-60" />
+              <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover opacity-60" />
             </div>
             <div className="h-48 rounded-3xl bg-[#1a1a1a] border border-[#222] overflow-hidden">
                <img src="https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover opacity-60" />
             </div>
             <div className="h-48 rounded-3xl bg-[#1a1a1a] border border-[#222] overflow-hidden">
-               <img src="https://images.unsplash.com/photo-1555529733-0e67056058e1?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover opacity-60" />
+               <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover opacity-60" />
             </div>
             <div className="h-48 rounded-3xl bg-[#1a1a1a] border border-[#222] overflow-hidden flex items-center justify-center">
                <Navigation className="w-10 h-10 text-[#FACC15]" />
@@ -141,7 +140,7 @@ export default function LandingPage() {
             <p className="text-gray-400">
               Sentinel-1 SAR imagery processed through a U-Net architecture for high-precision spill segmentation, paired with OpenDrift physics-aware analytics.
             </p>
-            <Link href="#" className="flex items-center gap-2 text-sm font-bold text-white hover:text-[#FACC15] transition w-fit mt-4 pb-1 border-b border-[#FACC15]">
+            <Link href="/command-center" className="flex items-center gap-2 text-sm font-bold text-white hover:text-[#FACC15] transition w-fit mt-4 pb-1 border-b border-[#FACC15]">
               See in action <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
