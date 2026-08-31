@@ -10,6 +10,7 @@ import SimulationPanel from './components/SimulationPanel';
 import ReportModal from './components/ReportModal';
 import LiveAisModal from './components/LiveAisModal';
 import TrajectoryRecorderModal from './components/TrajectoryRecorderModal';
+import LandingPage from './components/LandingPage';
 
 import { PRESET_SCENARIOS } from './data/presetScenarios';
 import { characterizeOilSlick } from './engine/sarSegmentation';
@@ -20,10 +21,13 @@ import { RealtimeAisStream, MAX_TRACKED_VESSELS } from './services/liveAisServic
 
 export default function App() {
   // Scenario Selection
-  const [selectedScenarioId, setSelectedScenarioId] = useState('malacca_strait');
+  const [selectedScenarioId, setSelectedScenarioId] = useState(PRESET_SCENARIOS[0].id);
   const [isSimulationMode, setIsSimulationMode] = useState(false);
   const [customAisVessels, setCustomAisVessels] = useState([]);
   const [mlPredictedPolygon, setMlPredictedPolygon] = useState(null);
+
+  // State: Landing Page
+  const [showLanding, setShowLanding] = useState(true);
 
   // Real-Time AISStream WebSocket State
   const [isAisStreaming, setIsAisStreaming] = useState(false);
@@ -193,6 +197,10 @@ export default function App() {
       alert('ML prediction failed or no oil spill detected in the image.');
     }
   };
+
+  if (showLanding) {
+    return <LandingPage onLaunch={() => setShowLanding(false)} />;
+  }
 
   return (
     <div className="w-screen h-screen flex flex-col bg-[#F3F4F6] text-slate-800 overflow-hidden font-sans">
