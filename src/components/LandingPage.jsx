@@ -11,7 +11,7 @@ export default function LandingPage({ onLaunch }) {
   });
 
   return (
-    <div ref={ref} className="relative w-full bg-[#0a0a0a] text-white overflow-hidden min-h-[350vh] font-sans">
+    <div ref={ref} className="relative w-full h-auto bg-[#0a0a0a] text-white min-h-[350vh] font-sans">
       
       {/* Full Background Video - Fixed Wallpaper */}
       <video
