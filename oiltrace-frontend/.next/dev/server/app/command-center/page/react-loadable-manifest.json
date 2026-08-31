@@ -1,0 +1,9 @@
+{
+  "[project]/app/command-center/components/InteractiveMap.jsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/app/command-center/components/InteractiveMap.jsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/node_modules_leaflet_dist_leaflet-src_12ie3gh.js",
+      "static/chunks/app_command-center_components_InteractiveMap_jsx_1tb4y2d._.js"
+    ]
+  }
+}

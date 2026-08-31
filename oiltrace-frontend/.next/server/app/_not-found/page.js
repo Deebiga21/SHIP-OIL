@@ -1,0 +1,12 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/_not-found/page.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0ids2u8._.js")
+R.c("server/chunks/ssr/05h__next_dist_0qo57vv._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0zm15og._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__1wq12fe._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__1d40tfi._.js")
+R.c("server/chunks/ssr/05h__next_dist_client_components_01jl0pe._.js")
+R.c("server/chunks/ssr/05h__next_dist_client_components_builtin_forbidden_1fvymg8.js")
+R.c("server/chunks/ssr/05h__next_dist_client_components_builtin_unauthorized_0wne8be.js")
+R.c("server/chunks/ssr/oiltrace-frontend__next-internal_server_app__not-found_page_actions_09h9z9y.js")
+R.m(15248)
+module.exports=R.m(15248).exports
