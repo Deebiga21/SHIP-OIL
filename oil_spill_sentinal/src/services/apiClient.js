@@ -115,28 +115,3 @@ export async function runFastApiVesselAttribution(vessels, originCentroid, origi
   }
   return null;
 }
-
-/**
- * Uploads a SAR image to the Python FastAPI backend for UNet ML segmentation
- */
-export async function runFastApiSarPrediction(imageFile) {
-  try {
-    const formData = new FormData();
-    formData.append("file", imageFile);
-    
-    const res = await fetch(`${FASTAPI_BASE_URL}/api/sar/predict-image`, {
-      method: 'POST',
-      body: formData // Fetch automatically sets the multipart/form-data boundary
-    });
-    
-    if (res.ok) {
-      const body = await res.json();
-      return body.data;
-    } else {
-      console.error('FastAPI ML prediction returned error:', await res.text());
-    }
-  } catch (err) {
-    console.warn('FastAPI ML prediction error:', err);
-  }
-  return null;
-}

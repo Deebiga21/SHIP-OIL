@@ -10,8 +10,7 @@ export default function Navbar({
   onOpenReport,
   onOpenSimulationPanel,
   onOpenLiveAis,
-  onOpenTrajectoryRecorder,
-  onUploadSarImage
+  onOpenTrajectoryRecorder
 }) {
   const activeScenario = scenarios.find((s) => s.id === selectedScenarioId) || scenarios[0];
 
@@ -59,29 +58,6 @@ export default function Navbar({
             <Sliders className="w-3.5 h-3.5" />
             <span>Custom Physics Lab</span>
           </button>
-        </div>
-
-        {/* Upload SAR ML Inference Button */}
-        <div className="relative">
-          <input
-            type="file"
-            id="sar-upload"
-            className="hidden"
-            accept=".tif,.tiff,.jpg,.png"
-            onChange={(e) => {
-              if (e.target.files && e.target.files[0]) {
-                onUploadSarImage && onUploadSarImage(e.target.files[0]);
-              }
-            }}
-          />
-          <label
-            htmlFor="sar-upload"
-            className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-lg border border-indigo-300 transition-colors flex items-center space-x-1.5 shadow-sm cursor-pointer"
-            title="Upload SAR Image for ML Spill Detection"
-          >
-            <Radar className="w-3.5 h-3.5 text-indigo-600" />
-            <span>Scan New SAR Image</span>
-          </label>
         </div>
 
         {/* Live AIS API Input Button */}

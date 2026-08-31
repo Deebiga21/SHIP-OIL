@@ -1,5 +1,5 @@
 import asyncio
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, File, UploadFile
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Any
@@ -8,7 +8,6 @@ from config import AIS_API_KEY, OPENWEATHER_API_KEY, STORMGLASS_API_KEY, MARINE_
 from engine.sar_engine import characterize_oil_slick
 from engine.drift_engine import run_backward_hindcast, run_forward_forecast
 from engine.attribution_engine import rank_suspect_vessels
-from engine.ml_engine import predict_sar_spill_mask
 from services.weather_service import get_live_marine_weather
 from services.ais_service import ais_bridge
 
@@ -30,7 +29,7 @@ app.add_middleware(
 # Startup event: Initiate background AISStream WebSocket bridge task
 @app.on_event("startup")
 async def startup_event():
-    print(f"🚀 AquaSentinel AI Python FastAPI Backend starting on http://{HOST}:{PORT}")
+    print(f"AquaSentinel AI Python FastAPI Backend starting on http://{HOST}:{PORT}")
     asyncio.create_task(ais_bridge.connect_to_aisstream())
 
 # Request Models
@@ -138,14 +137,3 @@ async def ais_websocket_endpoint(websocket: WebSocket):
             await websocket.receive_text()
     except WebSocketDisconnect:
         await ais_bridge.unregister_client(websocket)
-
-# 8. Python SAR Image Prediction Endpoint using Trained UNet Model
-@app.post("/api/sar/predict-image")
-async def sar_predict_image(file: UploadFile = File(...)):
-    image_bytes = await file.read()
-    try:
-        result = predict_sar_spill_mask(image_bytes)
-        return {"status": "success", "data": result}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
-

@@ -1,6 +1,8 @@
+"use client";
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
-import InteractiveMap from './components/InteractiveMap';
+import dynamic from 'next/dynamic';
+const InteractiveMap = dynamic(() => import('./components/InteractiveMap'), { ssr: false });
 import TimelineControl from './components/TimelineControl';
 import SlickDetailsCard from './components/SlickDetailsCard';
 import MarineWeatherCard from './components/MarineWeatherCard';
@@ -9,13 +11,11 @@ import VesselDetailsModal from './components/VesselDetailsModal';
 import SimulationPanel from './components/SimulationPanel';
 import ReportModal from './components/ReportModal';
 import LiveAisModal from './components/LiveAisModal';
-import TrajectoryRecorderModal from './components/TrajectoryRecorderModal';
 
 import { PRESET_SCENARIOS } from './data/presetScenarios';
 import { characterizeOilSlick } from './engine/sarSegmentation';
 import { runBackwardHindcast, runForwardForecast } from './engine/driftPhysics';
 import { rankSuspectVessels } from './engine/vesselAttribution';
-import { runFastApiSarPrediction } from './services/apiClient';
 import { RealtimeAisStream, MAX_TRACKED_VESSELS } from './services/liveAisService';
 
 export default function App() {
@@ -23,13 +23,11 @@ export default function App() {
   const [selectedScenarioId, setSelectedScenarioId] = useState('malacca_strait');
   const [isSimulationMode, setIsSimulationMode] = useState(false);
   const [customAisVessels, setCustomAisVessels] = useState([]);
-  const [mlPredictedPolygon, setMlPredictedPolygon] = useState(null);
 
-  // Real-Time AISStream WebSocket State
+  // Real-Time AISStream WebSocket State (Capped at 200 prototype vessels)
   const [isAisStreaming, setIsAisStreaming] = useState(false);
   const [liveStreamingVessels, setLiveStreamingVessels] = useState([]);
   const [liveMsgCount, setLiveMsgCount] = useState(0);
-  const [isPostSpillRecording, setIsPostSpillRecording] = useState(true);
   const aisStreamRef = useRef(null);
 
   // Active Scenario object merged with imported & real-time streaming AIS vessels
@@ -41,16 +39,14 @@ export default function App() {
     const uniqueMap = new Map();
     combinedVessels.forEach((v) => uniqueMap.set(v.mmsi, v));
 
-    // Limit active vessels array to 200 prototype vessels
+    // Limit active vessels array to 200
     const limitedArray = Array.from(uniqueMap.values()).slice(0, MAX_TRACKED_VESSELS);
 
     return {
       ...base,
-      vessels: limitedArray,
-      slickPolygon: mlPredictedPolygon || base.slickPolygon,
-      title: mlPredictedPolygon ? `ML Extracted Slick (${base.title})` : base.title
+      vessels: limitedArray
     };
-  }, [selectedScenarioId, customAisVessels, liveStreamingVessels, mlPredictedPolygon]);
+  }, [selectedScenarioId, customAisVessels, liveStreamingVessels]);
 
   // Dynamic Physics Forcing States
   const [windSpeed, setWindSpeed] = useState(activeScenario.satelliteMetadata.windSpeedKnots);
@@ -113,7 +109,6 @@ export default function App() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isSimulationPanelOpen, setIsSimulationPanelOpen] = useState(false);
   const [isLiveAisModalOpen, setIsLiveAisModalOpen] = useState(false);
-  const [isTrajectoryModalOpen, setIsTrajectoryModalOpen] = useState(false);
 
   // GIS Layer Toggles
   const [slickMaskToggle, setSlickMaskToggle] = useState(true);
@@ -182,20 +177,8 @@ export default function App() {
     if (weather.currentDir !== undefined) setCurrentDir(weather.currentDir);
   };
 
-  // Handle ML Image Upload
-  const handleUploadSarImage = async (file) => {
-    alert(`Uploading ${file.name} to PyTorch ML Engine...`);
-    const mlData = await runFastApiSarPrediction(file);
-    if (mlData && mlData.polygonCoords && mlData.polygonCoords.length > 2) {
-      setMlPredictedPolygon(mlData.polygonCoords);
-      alert(`ML Extraction Complete! Extracted polygon with ${mlData.polygonCoords.length} vertices.`);
-    } else {
-      alert('ML prediction failed or no oil spill detected in the image.');
-    }
-  };
-
   return (
-    <div className="w-screen h-screen flex flex-col bg-[#F3F4F6] text-slate-800 overflow-hidden font-sans">
+    <div className="w-full h-screen flex flex-col bg-[#F3F4F6] text-slate-800 overflow-hidden font-sans">
       {/* Navbar */}
       <Navbar
         scenarios={PRESET_SCENARIOS}
@@ -204,15 +187,12 @@ export default function App() {
           setSelectedScenarioId(id);
           setSelectedVesselId(null);
           setCurrentTimeOffsetHours(0);
-          setMlPredictedPolygon(null);
         }}
         isSimulationMode={isSimulationMode}
         onToggleSimulationMode={() => setIsSimulationMode(!isSimulationMode)}
         onOpenReport={() => setIsReportModalOpen(true)}
         onOpenSimulationPanel={() => setIsSimulationPanelOpen(!isSimulationPanelOpen)}
         onOpenLiveAis={() => setIsLiveAisModalOpen(true)}
-        onOpenTrajectoryRecorder={() => setIsTrajectoryModalOpen(true)}
-        onUploadSarImage={handleUploadSarImage}
       />
 
       {/* Main Workspace Area */}
@@ -289,18 +269,6 @@ export default function App() {
         isStreaming={isAisStreaming}
         onToggleStreaming={handleToggleAisStream}
         liveVesselCount={liveStreamingVessels.length}
-      />
-
-      {/* Trajectory Sequence Log & Recorder Modal */}
-      <TrajectoryRecorderModal
-        isOpen={isTrajectoryModalOpen}
-        onClose={() => setIsTrajectoryModalOpen(false)}
-        vessels={activeScenario.vessels}
-        isRecording={isPostSpillRecording}
-        onToggleRecording={() => setIsPostSpillRecording(!isPostSpillRecording)}
-        onSelectVesselForSimulation={(vesselId) => {
-          setSelectedVesselId(vesselId);
-        }}
       />
 
       {/* Slide-out Simulation Physics Panel */}

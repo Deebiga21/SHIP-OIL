@@ -1,0 +1,9 @@
+torch
+torchvision
+torchaudio
+segmentation-models-pytorch
+opencv-python
+numpy
+Pillow
+tqdm
+scikit-learn
