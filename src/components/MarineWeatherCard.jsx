@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wind, Compass, Waves, Thermometer, Gauge, Eye, RefreshCw, Key, CheckCircle2, Zap } from 'lucide-react';
+import { Wind, Compass, Waves, Thermometer, RefreshCw, Zap } from 'lucide-react';
 import { fetchLiveMarineWeather } from '../services/marineWeatherService';
 
 export default function MarineWeatherCard({ slickCentroid, onSyncToPhysics }) {
@@ -43,17 +43,6 @@ export default function MarineWeatherCard({ slickCentroid, onSyncToPhysics }) {
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
         </button>
-      </div>
-
-      {/* API Source & .env Key Status */}
-      <div className="bg-slate-50 p-2 rounded-lg border border-slate-200 text-[10px] font-mono flex items-center justify-between">
-        <div className="flex items-center space-x-1.5 text-slate-700">
-          <Key className="w-3 h-3 text-amber-600" />
-          <span className="truncate">{weatherData.source}</span>
-        </div>
-        <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold">
-          LIVE TELEMETRY
-        </span>
       </div>
 
       {/* Weather Grid */}
