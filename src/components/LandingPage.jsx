@@ -1,6 +1,6 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import React, { useRef } from "react";
-import { ArrowRight, ShieldAlert, Navigation } from "lucide-react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import React, { useRef, useEffect, useState } from "react";
+import { ArrowRight, ShieldAlert, Navigation, ChevronDown } from "lucide-react";
 import MaskedHeading from "./MaskedHeading";
 
 export default function LandingPage({ onLaunch }) {
@@ -9,6 +9,24 @@ export default function LandingPage({ onLaunch }) {
     target: ref,
     offset: ["start start", "end end"]
   });
+
+  const [showScrollHint, setShowScrollHint] = useState(true);
+
+  // Hide scroll hint once user starts scrolling
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const handleScroll = () => {
+      if (window.scrollY > 80) setShowScrollHint(false);
+      else setShowScrollHint(true);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollDown = () => {
+    window.scrollTo({ top: window.innerHeight * 0.9, behavior: "smooth" });
+  };
 
   return (
     <div ref={ref} className="relative w-full h-auto bg-[#0a0a0a] text-white min-h-[350vh] font-sans">
@@ -73,6 +91,30 @@ export default function LandingPage({ onLaunch }) {
                 Learn More <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
               </button>
             </div>
+
+            {/* Scroll Down Indicator */}
+            <AnimatePresence>
+              {showScrollHint && (
+                <motion.button
+                  key="scroll-hint"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.4 }}
+                  onClick={scrollDown}
+                  className="mt-2 flex flex-col items-center gap-1 group cursor-pointer select-none w-fit"
+                  aria-label="Scroll down to explore"
+                >
+                  <span className="text-xs font-semibold text-sky-300/70 uppercase tracking-widest group-hover:text-sky-300 transition">Scroll to explore</span>
+                  <motion.div
+                    animate={{ y: [0, 8, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
+                  >
+                    <ChevronDown className="w-6 h-6 text-[#0ea5e9] opacity-80 group-hover:opacity-100 transition" />
+                  </motion.div>
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
           <div className="flex-1 relative flex justify-center md:justify-end">
             <div className="w-[400px] h-[500px] rounded-[40px] bg-[#0ea5e9]/10 backdrop-blur-xl border border-[#0ea5e9]/30 shadow-2xl shadow-[#0ea5e9]/10 relative overflow-hidden flex flex-col p-8 z-10">
